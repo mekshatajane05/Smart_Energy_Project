@@ -81,3 +81,21 @@ def fill_missing_values(df, numeric_cols, missing_before):
     print(f" After cleaning: {missing_after.sum()} missing cells remaining")
 
     return df, missing_after
+
+def cap_outliers(df, numeric_cols):
+    print("\n[STEP 6] Capping outliers using IQR method...")
+    print(" (Module 1's df.describe() showed suspicious min/max — now fixing)")
+
+    for col in numeric_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+
+        n_outliers = ((df[col] < lower) | (df[col] > upper)).sum()
+        df[col] = df[col].clip(lower=lower, upper=upper)
+
+        print(f"   {col}: {n_outliers:,} outliers capped → bounds [{lower:.3f}, {upper:.3f}]")
+
+    return df
