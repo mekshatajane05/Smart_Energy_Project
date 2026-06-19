@@ -166,3 +166,28 @@ def split_data(df_hourly_scaled):
     print(f" Test  : {len(df_test):,}   ({df_test.index.min().date()} → {df_test.index.max().date()})")
 
     return df_train, df_val, df_test
+
+import os
+
+def save_processed_files(df_hourly, df_daily, df_hourly_scaled,
+                          df_train, df_val, df_test, scaler_params):
+
+    output_dir = os.path.join("data", "processed")
+    os.makedirs(output_dir, exist_ok=True)
+
+    df_hourly.to_csv(os.path.join(output_dir, "hourly_data.csv"))
+    df_daily.to_csv(os.path.join(output_dir, "daily_data.csv"))
+    df_hourly_scaled.to_csv(os.path.join(output_dir, "hourly_scaled.csv"))
+    df_train.to_csv(os.path.join(output_dir, "train_set.csv"))
+    df_val.to_csv(os.path.join(output_dir, "val_set.csv"))
+    df_test.to_csv(os.path.join(output_dir, "test_set.csv"))
+    scaler_params.to_csv(os.path.join(output_dir, "scaler_params.csv"), index=False)
+
+    print("\n Files saved to data/processed/:")
+    print("   hourly_data.csv      ← Module 3 loads this")
+    print("   daily_data.csv       ← Module 4 (Linear Regression) loads this")
+    print("   hourly_scaled.csv    ← Module 5 (LSTM) loads this")
+    print("   train_set.csv        ← Module 5 training")
+    print("   val_set.csv          ← Module 5 validation")
+    print("   test_set.csv         ← Module 6 evaluation")
+    print("   scaler_params.csv    ← Module 5 uses to reverse predictions")
