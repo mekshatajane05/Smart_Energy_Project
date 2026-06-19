@@ -47,3 +47,12 @@ def parse_datetime(df):
 
     print(f" Datetime index set: {df.index.min()} → {df.index.max()}")
     return df
+
+def convert_to_numeric(df, numeric_cols):
+    print("\n[STEP 3] Converting columns to numeric (Module 1 flagged these as 'object')...")
+
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    print(" All measurement columns converted to float.")
+    return df
