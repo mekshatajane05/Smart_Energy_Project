@@ -56,3 +56,17 @@ def convert_to_numeric(df, numeric_cols):
 
     print(" All measurement columns converted to float.")
     return df
+
+def remove_duplicates(df):
+    print("\n[STEP 4] Checking for duplicate timestamps...")
+
+    duplicates = df.index.duplicated().sum()
+    print(f" Duplicate timestamps found: {duplicates}")
+
+    if duplicates > 0:
+        df = df[~df.index.duplicated(keep='first')]
+        print(f" Duplicates removed. Remaining: {len(df):,} records")
+    else:
+        print(" No duplicates. Clean!")
+
+    return df
