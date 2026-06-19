@@ -99,3 +99,28 @@ def cap_outliers(df, numeric_cols):
         print(f"   {col}: {n_outliers:,} outliers capped → bounds [{lower:.3f}, {upper:.3f}]")
 
     return df
+
+def resample_data(df):
+    print("\n[STEP 7] Resampling data (minute → hourly and daily)...")
+
+    agg_dict = {
+        'Global_active_power':   'mean',
+        'Global_reactive_power': 'mean',
+        'Voltage':               'mean',
+        'Global_intensity':      'mean',
+        'Sub_metering_1':        'sum',
+        'Sub_metering_2':        'sum',
+        'Sub_metering_3':        'sum'
+    }
+
+    df_hourly = df.resample('h').agg(agg_dict)
+    df_hourly.dropna(inplace=True)
+
+    df_daily = df.resample('D').agg(agg_dict)
+    df_daily.dropna(inplace=True)
+
+    print(f" Raw (minute-level) : {len(df):,} records")
+    print(f" Hourly resampled   : {len(df_hourly):,} records  ← used for LSTM (Module 5)")
+    print(f" Daily resampled    : {len(df_daily):,} records   ← used for Linear Regression (Module 4)")
+
+    return df_hourly, df_daily
