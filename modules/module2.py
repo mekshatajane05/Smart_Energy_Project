@@ -124,3 +124,27 @@ def resample_data(df):
     print(f" Daily resampled    : {len(df_daily):,} records   ← used for Linear Regression (Module 4)")
 
     return df_hourly, df_daily
+
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
+def scale_features(df_hourly, numeric_cols):
+    print("\n[STEP 8] Scaling features to [0, 1] range using MinMaxScaler...")
+
+    scaler = MinMaxScaler()
+    df_hourly_scaled = df_hourly.copy()
+    df_hourly_scaled[numeric_cols] = scaler.fit_transform(df_hourly[numeric_cols])
+
+    print(f" Scaling done. Value range: [{df_hourly_scaled[numeric_cols].min().min():.2f}, "
+          f"{df_hourly_scaled[numeric_cols].max().max():.2f}]")
+
+    # Save scaler params so Module 5 can inverse_transform predictions
+    scaler_params = pd.DataFrame({
+        'feature':  numeric_cols,
+        'data_min': scaler.data_min_,
+        'data_max': scaler.data_max_,
+        'scale':    scaler.scale_,
+        'min':      scaler.min_
+    })
+
+    return df_hourly_scaled, scaler_params
