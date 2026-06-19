@@ -22,3 +22,28 @@ def load_raw_data():
     print(f" Module 1 found {missing_before.sum():,} total missing values — now we fix them.")
 
     return df, missing_before
+
+import pandas as pd
+
+def parse_datetime(df):
+    print("\n[STEP 2] Merging Date + Time columns into Datetime index...")
+    print(f" Module 1 showed Date range: {df['Date'].min()} → {df['Date'].max()}")
+
+    df['Datetime'] = pd.to_datetime(
+        df['Date'] + ' ' + df['Time'],
+        format='%d/%m/%Y %H:%M:%S',
+        errors='coerce'
+    )
+
+    df.drop(columns=['Date', 'Time'], inplace=True)
+    df.set_index('Datetime', inplace=True)
+    df.sort_index(inplace=True)
+
+    nat_count = df.index.isna().sum()
+    print(f" Unparseable timestamps: {nat_count}")
+    if nat_count > 0:
+        df = df[~df.index.isna()]
+        print(f" Removed {nat_count} bad timestamp rows.")
+
+    print(f" Datetime index set: {df.index.min()} → {df.index.max()}")
+    return df
