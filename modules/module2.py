@@ -70,3 +70,14 @@ def remove_duplicates(df):
         print(" No duplicates. Clean!")
 
     return df
+def fill_missing_values(df, numeric_cols, missing_before):
+    print("\n[STEP 5] Filling missing values...")
+    print(f" Before (from Module 1's analysis): {missing_before[numeric_cols].sum():,} missing cells")
+
+    df.ffill(inplace=True)
+    df.fillna(df.median(numeric_only=True), inplace=True)
+
+    missing_after = df.isnull().sum()
+    print(f" After cleaning: {missing_after.sum()} missing cells remaining")
+
+    return df, missing_after
