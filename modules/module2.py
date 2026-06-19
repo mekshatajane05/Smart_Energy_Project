@@ -191,3 +191,88 @@ def save_processed_files(df_hourly, df_daily, df_hourly_scaled,
     print("   val_set.csv          ← Module 5 validation")
     print("   test_set.csv         ← Module 6 evaluation")
     print("   scaler_params.csv    ← Module 5 uses to reverse predictions")
+
+    import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+def generate_visualizations(df_hourly, df_daily, df_train, df_val, df_test,
+                              missing_before, missing_after, numeric_cols, device_mapping):
+
+    print("\n[STEP 11] Generating Module 2 visualizations...")
+
+    fig2, axes2 = plt.subplots(2, 2, figsize=(16, 11))
+    fig2.suptitle('MODULE 2: Data Cleaning and Preprocessing\n(Continues from Module 1 EDA)',
+                   fontsize=15, fontweight='bold')
+
+    short_labels = [c.replace('Global_', 'G_').replace('Sub_metering_', 'Sub_') for c in numeric_cols]
+
+    # Chart 1: Before vs After Missing Values
+    ax1 = axes2[0, 0]
+    x = np.arange(len(numeric_cols))
+    width = 0.35
+    ax1.bar(x - width/2, missing_before[numeric_cols], width,
+            label='Before (Module 1 found)', color='#FF6B6B', edgecolor='black')
+    ax1.bar(x + width/2, missing_after[numeric_cols], width,
+            label='After (Module 2 fixed)', color='#4CAF50', edgecolor='black')
+    ax1.set_title('Missing Values: Before vs After Cleaning')
+    ax1.set_xlabel('Column')
+    ax1.set_ylabel('Missing Count')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(short_labels, rotation=30, ha='right', fontsize=8)
+    ax1.legend(fontsize=8)
+    ax1.grid(axis='y', alpha=0.3)
+
+    # Chart 2: Cleaned Hourly Power (first 30 days)
+    ax2 = axes2[0, 1]
+    plot_data = df_hourly['Global_active_power'].iloc[:24*30]
+    ax2.plot(plot_data.index, plot_data.values, color='steelblue', linewidth=0.8, alpha=0.85)
+    ax2.fill_between(plot_data.index, plot_data.values, alpha=0.15, color='steelblue')
+    ax2.set_title('Cleaned Hourly Global Active Power (First 30 Days)')
+    ax2.set_xlabel('Date')
+    ax2.set_ylabel('Power (kW)')
+    ax2.tick_params(axis='x', rotation=30)
+    ax2.grid(alpha=0.3)
+
+    # Chart 3: Daily Device Stacked Area
+    ax3 = axes2[1, 0]
+    daily_sub = df_daily[['Sub_metering_1', 'Sub_metering_2', 'Sub_metering_3']].iloc[:180]
+    ax3.stackplot(
+        daily_sub.index,
+        daily_sub['Sub_metering_1'],
+        daily_sub['Sub_metering_2'],
+        daily_sub['Sub_metering_3'],
+        labels=[f'Kitchen', f'Laundry', f'HVAC'],
+        colors=['#FF6B6B', '#4ECDC4', '#45B7D1'],
+        alpha=0.75
+    )
+    ax3.set_title('Daily Device Energy — Stacked Area (6 Months)')
+    ax3.set_xlabel('Date')
+    ax3.set_ylabel('Energy (Wh)')
+    ax3.legend(loc='upper left', fontsize=8)
+    ax3.tick_params(axis='x', rotation=30)
+    ax3.grid(alpha=0.2)
+
+    # Chart 4: Train / Val / Test Split
+    ax4 = axes2[1, 1]
+    col = 'Global_active_power'
+    ax4.plot(df_train.index, df_train[col], color='#2196F3', linewidth=0.5,
+             label=f'Train — {len(df_train):,} hrs (70%)')
+    ax4.plot(df_val.index,   df_val[col],   color='#FF9800', linewidth=0.5,
+             label=f'Validation — {len(df_val):,} hrs (15%)')
+    ax4.plot(df_test.index,  df_test[col],  color='#F44336', linewidth=0.5,
+             label=f'Test — {len(df_test):,} hrs (15%)')
+    ax4.set_title('Train / Validation / Test Split (Scaled, 0–1)')
+    ax4.set_xlabel('Date')
+    ax4.set_ylabel('Scaled Power')
+    ax4.legend(fontsize=8)
+    ax4.tick_params(axis='x', rotation=30)
+    ax4.grid(alpha=0.3)
+
+    plt.tight_layout()
+
+    output_dir = os.path.join("data", "processed")
+    viz_path = os.path.join(output_dir, "module2_cleaning_visualization.png")
+    plt.savefig(viz_path, dpi=300, bbox_inches='tight')
+    print(f" Visualization saved: '{viz_path}'")
+    plt.show()
