@@ -148,3 +148,21 @@ def scale_features(df_hourly, numeric_cols):
     })
 
     return df_hourly_scaled, scaler_params
+
+def split_data(df_hourly_scaled):
+    print("\n[STEP 9] Splitting into Train / Validation / Test (70/15/15)...")
+
+    total     = len(df_hourly_scaled)
+    train_end = int(total * 0.70)
+    val_end   = int(total * 0.85)
+
+    df_train = df_hourly_scaled.iloc[:train_end]
+    df_val   = df_hourly_scaled.iloc[train_end:val_end]
+    df_test  = df_hourly_scaled.iloc[val_end:]
+
+    print(f" Total : {total:,} hourly records")
+    print(f" Train : {len(df_train):,}  ({df_train.index.min().date()} → {df_train.index.max().date()})")
+    print(f" Val   : {len(df_val):,}   ({df_val.index.min().date()} → {df_val.index.max().date()})")
+    print(f" Test  : {len(df_test):,}   ({df_test.index.min().date()} → {df_test.index.max().date()})")
+
+    return df_train, df_val, df_test
